@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate HR Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .chat-wrapper {
+            max-width: 800px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        #chat-container {
+            flex: 1;
+            padding: 20px;
+            height: 500px;
+            overflow-y: auto;
+            background: #f9fafb;
+        }
+        .message {
+            margin: 12px 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 70%;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease-in;
+        }
+        .user-message {
+            background-color: #dbeafe;
+            color: #1e40af;
+            margin-left: 25%;
+            border: 1px solid #93c5fd;
+        }
+        .bot-message {
+            background-color: #eff6ff;
+            color: #1f2937;
+            margin-right: 25%;
+            border: 1px solid #bfdbfe;
+        }
+        .bot-message::before {
+            content: '🛠️ ';
+        }
+        .user-message::before {
+            content: '👤 ';
+        }
+        /* Markdown-specific styling */
+        .bot-message p {
+            margin: 0 0 8px 0;
+        }
+        .bot-message strong {
+            font-weight: 600;
+            color: #1e40af;
+        }
+        .bot-message ul, .bot-message ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        .bot-message li {
+            margin-bottom: 4px;
+        }
+        .bot-message h1, .bot-message h2, .bot-message h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1e40af;
+            margin: 8px 0;
+        }
+        .bot-message a {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+        .chat-input-area {
+            display: flex;
+            padding: 16px;
+            background: #ffffff;
+            border-top: 1px solid #e5e7eb;
+        }
+        #chat-input {
+            flex: 1;
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #chat-input:focus {
+            border-color: #1e40af;
+        }
+        #send-button {
+            margin-left: 10px;
+            padding: 12px 24px;
+            font-size: 1em;
+            background-color: #1e40af;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        #send-button:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        #chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chat-container::-webkit-scrollbar-track {
+            background: #e5e7eb;
+        }
+        #chat-container::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+        @media (max-width: 600px) {
+            .chat-wrapper {
+                margin: 10px;
+            }
+            .chat-header {
+                font-size: 1.2em;
+            }
+            #chat-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-wrapper">
+        <div class="chat-header">Corporate HR Chatbot</div>
+        <div id="chat-container"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask about HR policies, benefits, or more...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const webhookUrl = 'https://8c436a.n8napp.site/webhook/22a23c00-e63f-4a8d-9a62-f6417b4ba97d';
+        const chatContainer = document.getElementById('chat-container');
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-button');
+
+        function addMessage(message, isUser) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', isUser ? 'user-message' : 'bot-message');
+            if (isUser) {
+                messageElement.textContent = message;
+            } else {
+                // Parse Markdown for bot messages
+                messageElement.innerHTML = marked.parse(message);
+            }
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            chatInput.value = '';
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message }),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to send message to webhook: ${response.status} ${response.statusText} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log('Raw response from n8n:', data);
+
+                let botReply = data.output || 
+                               data.reply || 
+                               (data.data && data.data.response) || 
+                               (data[0] && data[0].text) || 
+                               data.text || 
+                               data.message || 
+                               JSON.stringify(data) || 
+                               'No response from bot';
+
+                addMessage(botReply, false);
+            } catch (error) {
+                addMessage('Error: ' + error.message, false);
+                console.error('Error details:', error);
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

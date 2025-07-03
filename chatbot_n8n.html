@@ -9,23 +9,68 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f5f7fa;
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            /* Background image from Unsplash */
+            background-image: url('https://wallpaperaccess.com/full/1398312.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+        /* Overlay to ensure readability */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 64, 175, 0.5); /* Semi-transparent blue overlay */
+            z-index: -1;
+        }
+        .main-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            z-index: 1; /* Above background overlay */
+        }
+        .astronaut-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 300px;
+        }
+        .astronaut-svg {
+            width: 200px;
+            height: 200px;
+            animation: float 3s ease-in-out infinite;
+        }
+        .welcome-text {
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: 500;
+            color: #ffffff; /* White for contrast against background */
+            text-align: center;
+            animation: fadeInText 2s ease-in;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Shadow for readability */
         }
         .chat-wrapper {
             max-width: 800px;
             width: 100%;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
             border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            height: 700px;
         }
         .chat-header {
             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
@@ -38,7 +83,6 @@
         #chat-container {
             flex: 1;
             padding: 20px;
-            height: 500px;
             overflow-y: auto;
             background: #f9fafb;
         }
@@ -94,10 +138,12 @@
             text-decoration: underline;
         }
         .chat-input-area {
-            display: flex;
             padding: 16px;
             background: #ffffff;
             border-top: 1px solid #e5e7eb;
+            position: sticky;
+            bottom: 0;
+            display: flex;
         }
         #chat-input {
             flex: 1;
@@ -126,6 +172,41 @@
             background-color: #2563eb;
             transform: translateY(-2px);
         }
+        /* Typing indicator */
+        .typing-indicator {
+            margin: 12px 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 70%;
+            background-color: #eff6ff;
+            color: #1f2937;
+            margin-right: 25%;
+            border: 1px solid #bfdbfe;
+            display: flex;
+            align-items: center;
+        }
+        .typing-indicator::before {
+            content: '🛠️ ';
+        }
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #1e40af;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1s infinite;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -135,6 +216,14 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+        @keyframes fadeInText {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
         #chat-container::-webkit-scrollbar {
             width: 8px;
@@ -146,31 +235,56 @@
             background: #3b82f6;
             border-radius: 4px;
         }
-        @media (max-width: 600px) {
+        @media (max-width: 900px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .astronaut-container {
+                margin-bottom: 20px;
+            }
             .chat-wrapper {
                 margin: 10px;
+                height: calc(100vh - 300px);
             }
             .chat-header {
                 font-size: 1.2em;
-            }
-            #chat-container {
-                height: 400px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="chat-wrapper">
-        <div class="chat-header">Corporate HR Chatbot</div>
-        <div id="chat-container"></div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Ask about HR policies, benefits, or more...">
-            <button id="send-button">Send</button>
+    <div class="main-container">
+        <div class="astronaut-container">
+            <svg class="astronaut-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Helmet -->
+                <circle cx="50" cy="30" r="20" fill="#3b82f6"/>
+                <circle cx="50" cy="30" r="15" fill="#ffffff"/>
+                <!-- Body -->
+                <rect x="40" y="50" width="20" height="30" rx="5" fill="#1e40af"/>
+                <!-- Arms -->
+                <rect x="30" y="50" width="10" height="20" rx="3" fill="#3b82f6"/>
+                <rect x="60" y="50" width="10" height="20" rx="3" fill="#3b82f6"/>
+                <!-- Legs -->
+                <rect x="42" y="80" width="8" height="15" rx="3" fill="#1e40af"/>
+                <rect x="50" y="80" width="8" height="15" rx="3" fill="#1e40af"/>
+                <!-- Visor reflection -->
+                <path d="M45 25 Q50 20 55 25" fill="none" stroke="#93c5fd" stroke-width="2"/>
+            </svg>
+            <div class="welcome-text">Ask HR Anything!</div>
+        </div>
+        <div class="chat-wrapper">
+            <div class="chat-header">Corporate HR Chatbot</div>
+            <div id="chat-container"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Ask about HR policies, benefits, or more...">
+                <button id="send-button">Send</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const webhookUrl = 'https://8c436a.n8napp.site/webhook/22a23c00-e63f-4a8d-9a62-f6417b4ba97d';
+        const webhookUrl = 'https://8c436a.n8napp.site/webhook-test/22a23c00-e63f-4a8d-9a62-f6417b4ba97d';
         const chatContainer = document.getElementById('chat-container');
         const chatInput = document.getElementById('chat-input');
         const sendButton = document.getElementById('send-button');
@@ -181,11 +295,26 @@
             if (isUser) {
                 messageElement.textContent = message;
             } else {
-                // Parse Markdown for bot messages
                 messageElement.innerHTML = marked.parse(message);
             }
             chatContainer.appendChild(messageElement);
             chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingElement = document.createElement('div');
+            typingElement.classList.add('typing-indicator');
+            typingElement.innerHTML = '<span></span><span></span><span></span>';
+            typingElement.id = 'typing-indicator';
+            chatContainer.appendChild(typingElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingElement = document.getElementById('typing-indicator');
+            if (typingElement) {
+                typingElement.remove();
+            }
         }
 
         async function sendMessage() {
@@ -194,6 +323,7 @@
 
             addMessage(message, true);
             chatInput.value = '';
+            showTypingIndicator();
 
             try {
                 const response = await fetch(webhookUrl, {
@@ -203,6 +333,8 @@
                     },
                     body: JSON.stringify({ message: message }),
                 });
+
+                removeTypingIndicator();
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -223,6 +355,7 @@
 
                 addMessage(botReply, false);
             } catch (error) {
+                removeTypingIndicator();
                 addMessage('Error: ' + error.message, false);
                 console.error('Error details:', error);
             }
